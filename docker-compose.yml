@@ -1,0 +1,313 @@
+version: '3.8'
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-postgres-config: &postgres-config
+  POSTGRES_USER: ${POSTGRES_USER:-mathvisor}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mathvisor123}
+  POSTGRES_DB: ${POSTGRES_DB:-mathvisor}
+
+x-postgres-healthcheck: &postgres-healthcheck
+  test: ["CMD-SHELL", "pg_isready -U mathvisor"]
+  interval: 5s
+  timeout: 5s
+  retries: 5
+
+networks:
+  mathvisor-network:
+    driver: bridge
+
+volumes:
+  postgres-auth-data:
+  postgres-forum-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+services:
+  # ==================== API GATEWAY ====================
+  gateway:
+    image: nginx:alpine
+    container_name: mathvisor-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/includes/:/etc/nginx/includes/:ro
+      - ./services/frontend/public:/var/www/static:ro
+    depends_on:
+      - frontend
+      - auth-service
+      - graph-service
+      - linear-algebra-service
+      - diffeq-service
+      - forum-service
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== FRONTEND ====================
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile.dev
+    container_name: mathvisor-frontend
+    volumes:
+      - ./services/frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://gateway/api/v1
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== AUTH SERVICE ====================
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile.dev
+    container_name: mathvisor-auth
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./services/auth-service:/app
+      - ./shared/python:/shared:ro
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-mathvisor}:${POSTGRES_PASSWORD:-mathvisor123}@auth-db:5432/${POSTGRES_DB:-mathvisor}
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ENVIRONMENT=development
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  auth-db:
+    image: postgres:15-alpine
+    container_name: mathvisor-auth-db
+    environment: *postgres-config
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/auth-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck: *postgres-healthcheck
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== GRAPH SERVICE ====================
+  graph-service:
+    build:
+      context: ./services/graph-service
+      dockerfile: Dockerfile.dev
+    container_name: mathvisor-graph
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./services/graph-service:/app
+      - ./shared/python:/shared:ro
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+      - CACHE_TTL=3600
+      - MAX_POINTS=10000
+      - TIMEOUT_SECONDS=5
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  # ==================== LINEAR ALGEBRA SERVICE ====================
+  linear-algebra-service:
+    build:
+      context: ./services/linear-algebra-service
+      dockerfile: Dockerfile.dev
+    container_name: mathvisor-linear-algebra
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./services/linear-algebra-service:/app
+      - ./shared/python:/shared:ro
+    environment:
+      - REDIS_URL=redis://redis:6379/2
+      - CACHE_TTL=3600
+      - MAX_MATRIX_SIZE=100x100
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== DIFFEQ SERVICE ====================
+  diffeq-service:
+    build:
+      context: ./services/diffeq-service
+      dockerfile: Dockerfile.dev
+    container_name: mathvisor-diffeq
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./services/diffeq-service:/app
+      - ./shared/python:/shared:ro
+    environment:
+      - REDIS_URL=redis://redis:6379/3
+      - CACHE_TTL=3600
+      - MAX_TIME_STEPS=10000
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== FORUM SERVICE ====================
+  forum-service:
+    build:
+      context: ./services/forum-service
+      dockerfile: Dockerfile.dev
+    container_name: mathvisor-forum
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./services/forum-service:/app
+      - ./shared/python:/shared:ro
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-mathvisor}:${POSTGRES_PASSWORD:-mathvisor123}@forum-db:5432/${POSTGRES_DB:-mathvisor_forum}
+      - REDIS_URL=redis://redis:6379/4
+    depends_on:
+      forum-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  forum-db:
+    image: postgres:15-alpine
+    container_name: mathvisor-forum-db
+    environment:
+      <<: *postgres-config
+      POSTGRES_DB: ${POSTGRES_DB:-mathvisor_forum}
+    volumes:
+      - postgres-forum-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/forum-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck: *postgres-healthcheck
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== REDIS CACHE ====================
+  redis:
+    image: redis:7-alpine
+    container_name: mathvisor-redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== MONITORING ====================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mathvisor-prometheus
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/monitoring/prometheus/rules/:/etc/prometheus/rules/:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mathvisor-grafana
+    volumes:
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+
+  # ==================== DEVELOPMENT TOOLS ====================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mathvisor-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@mathvisor.ru}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin123}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    volumes:
+      - ./infrastructure/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "5050:80"
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+    depends_on:
+      - auth-db
+      - forum-db
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: mathvisor-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - mathvisor-network
+    logging: *default-logging
+    restart: unless-stopped
+    depends_on:
+      - redis
