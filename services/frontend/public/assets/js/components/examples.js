@@ -1,4 +1,3 @@
-// Компонент с примерами функций
 class ExamplesComponent {
     constructor(containerId, onSelectCallback) {
         this.container = document.getElementById(containerId);
@@ -30,22 +29,18 @@ class ExamplesComponent {
             </div>
         `).join('');
 
-        // Добавляем обработчики
         this.container.querySelectorAll('.example-item').forEach(item => {
             item.addEventListener('click', () => {
                 const func = item.dataset.function;
                 const xMin = item.dataset.xmin;
                 const xMax = item.dataset.xmax;
                 
-                // Убираем выделение у всех
                 this.container.querySelectorAll('.example-item').forEach(el => {
                     el.classList.remove('selected');
                 });
                 
-                // Выделяем выбранный
                 item.classList.add('selected');
                 
-                // Вызываем колбэк
                 if (this.onSelect) {
                     this.onSelect(func, xMin, xMax);
                 }
@@ -66,5 +61,4 @@ class ExamplesComponent {
     }
 }
 
-// Делаем класс глобальным
 window.ExamplesComponent = ExamplesComponent;

@@ -1,21 +1,17 @@
-// Валидация на клиенте
 const Validators = {
-    // Проверка математического выражения
     validateFunction: (func) => {
         if (!func || func.trim() === '') {
             return { valid: false, error: 'Функция не может быть пустой' };
         }
 
-        // Базовые проверки
         if (func.length > 200) {
             return { valid: false, error: 'Слишком длинное выражение' };
         }
 
-        // Проверка на опасные символы
         const dangerousPatterns = [
-            /[\[\]{};]/g,  // скобки и точки с запятой
-            /(import|eval|exec|require)/gi,  // опасные ключевые слова
-            /__\w+__/g,  // магические методы
+            /[\[\]{};]/g,  
+            /(import|eval|exec|require)/gi,  
+            /__\w+__/g,  
         ];
 
         for (const pattern of dangerousPatterns) {
@@ -24,7 +20,6 @@ const Validators = {
             }
         }
 
-        // Проверка на допустимые символы
         const allowedPattern = /^[a-zA-Z0-9\s\+\-\*\/\^\(\)\.,\!\=\<\>\&\|]+$/;
         if (!allowedPattern.test(func)) {
             return { valid: false, error: 'Использованы недопустимые символы' };
@@ -33,7 +28,6 @@ const Validators = {
         return { valid: true, error: null };
     },
 
-    // Проверка диапазона
     validateRange: (min, max) => {
         min = parseFloat(min);
         max = parseFloat(max);
@@ -53,7 +47,6 @@ const Validators = {
         return { valid: true, error: null };
     },
 
-    // Проверка количества точек
     validatePoints: (points) => {
         points = parseInt(points);
         if (isNaN(points) || points < 10 || points > 2000) {

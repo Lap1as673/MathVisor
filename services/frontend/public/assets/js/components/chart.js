@@ -1,4 +1,3 @@
-// Компонент для отрисовки графиков
 class ChartComponent {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -6,16 +5,13 @@ class ChartComponent {
         this.ctx = this.canvas?.getContext('2d');
     }
 
-    // Отрисовка графика
     plot(data) {
         if (!this.ctx || !data) return;
 
-        // Уничтожаем старый график
         if (this.chart) {
             this.chart.destroy();
         }
 
-        // Подготовка данных
         const datasets = [{
             label: `f(x) = ${data.expression}`,
             data: data.x.map((x, i) => ({ x: x, y: data.y[i] })),
@@ -27,7 +23,6 @@ class ChartComponent {
             fill: false,
         }];
 
-        // Настройки графика
         const config = {
             type: 'line',
             data: { datasets },
@@ -96,14 +91,11 @@ class ChartComponent {
             }
         };
 
-        // Создаем новый график
         this.chart = new Chart(this.ctx, config);
         
-        // Обновляем информацию
         this.updateInfo(data);
     }
 
-    // Обновление информации о графике
     updateInfo(data) {
         const functionSpan = document.getElementById('currentFunction');
         const statsSpan = document.getElementById('plotStats');
@@ -118,7 +110,6 @@ class ChartComponent {
         }
     }
 
-    // Очистка графика
     clear() {
         if (this.chart) {
             this.chart.destroy();
@@ -131,7 +122,6 @@ class ChartComponent {
         }
     }
 
-    // Сохранение графика как PNG
     downloadPNG() {
         if (!this.canvas) return;
         
@@ -141,7 +131,6 @@ class ChartComponent {
         link.click();
     }
 
-    // Обновление темы
     updateTheme() {
         if (this.chart) {
             const textColor = getComputedStyle(document.documentElement)

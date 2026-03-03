@@ -51,7 +51,6 @@ migrate:
 shell:
 	docker-compose exec auth-service python manage.py shell
 
-# Для продакшена
 prod-build:
 	docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
 

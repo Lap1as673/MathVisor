@@ -1,4 +1,3 @@
-// Компонент формы для ввода функции
 class PlotFormComponent {
     constructor(formId, onSubmitCallback) {
         this.form = document.getElementById(formId);
@@ -18,20 +17,17 @@ class PlotFormComponent {
     init() {
         if (!this.form) return;
 
-        // Обработчик отправки формы
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             this.submit();
         });
 
-        // Обновление отображения количества точек
         if (this.pointsInput && this.pointCountDisplay) {
             this.pointsInput.addEventListener('input', () => {
                 this.pointCountDisplay.textContent = this.pointsInput.value;
             });
         }
 
-        // Валидация при вводе
         if (this.funcInput) {
             this.funcInput.addEventListener('input', 
                 Helpers.debounce(() => this.validate(), 500)
@@ -39,28 +35,24 @@ class PlotFormComponent {
         }
     }
 
-    // Валидация формы
     validate() {
         const func = this.funcInput?.value || '';
         const xMin = this.xMinInput?.value || '-10';
         const xMax = this.xMaxInput?.value || '10';
         const points = this.pointsInput?.value || '200';
 
-        // Проверка функции
         const funcValidation = Validators.validateFunction(func);
         if (!funcValidation.valid) {
             this.showError(funcValidation.error);
             return false;
         }
 
-        // Проверка диапазона
         const rangeValidation = Validators.validateRange(xMin, xMax);
         if (!rangeValidation.valid) {
             this.showError(rangeValidation.error);
             return false;
         }
 
-        // Проверка точек
         const pointsValidation = Validators.validatePoints(points);
         if (!pointsValidation.valid) {
             this.showError(pointsValidation.error);
@@ -71,7 +63,6 @@ class PlotFormComponent {
         return true;
     }
 
-    // Отправка формы
     async submit() {
         if (!this.validate()) return;
 
@@ -80,11 +71,9 @@ class PlotFormComponent {
         const xMax = this.xMaxInput.value;
         const points = this.pointsInput.value;
 
-        // Показываем загрузку
         this.setLoading(true);
 
         try {
-            // Вызываем колбэк
             await this.onSubmit(func, xMin, xMax, points);
             this.clearError();
         } catch (error) {
@@ -94,17 +83,14 @@ class PlotFormComponent {
         }
     }
 
-    // Установка значений формы
     setValues(func, xMin, xMax) {
         if (this.funcInput) this.funcInput.value = func;
         if (this.xMinInput) this.xMinInput.value = xMin;
         if (this.xMaxInput) this.xMaxInput.value = xMax;
         
-        // Запускаем валидацию
         this.validate();
     }
 
-    // Показать ошибку
     showError(message) {
         if (this.errorMessage) {
             this.errorMessage.textContent = message;
@@ -112,7 +98,6 @@ class PlotFormComponent {
         }
     }
 
-    // Очистить ошибку
     clearError() {
         if (this.errorMessage) {
             this.errorMessage.textContent = '';
@@ -120,7 +105,6 @@ class PlotFormComponent {
         }
     }
 
-    // Установка состояния загрузки
     setLoading(loading) {
         if (this.plotBtn) {
             this.plotBtn.disabled = loading;

@@ -51,11 +51,9 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      # ИСПРАВЛЕНИЕ: Монтируем с правильными правами
       - ./services/auth-service/app:/app/app:Z
     networks:
       - mathvisor-network
-    # ИСПРАВЛЕНИЕ: Запускаем от root для разработки
     user: root
 
   frontend:
@@ -65,7 +63,6 @@ services:
     depends_on:
       - backend
     volumes:
-      # ИСПРАВЛЕНИЕ: Монтируем с правильными правами
       - ./services/frontend/public:/usr/share/nginx/html:ro,Z
     networks:
       - mathvisor-network

@@ -1,8 +1,7 @@
-// HTTP клиент для работы с API
 class ApiClient {
     constructor(baseURL = 'http://localhost:8000/api/v1') {
         this.baseURL = baseURL;
-        this.timeout = 30000; // 30 секунд
+        this.timeout = 30000; 
     }
 
     async request(endpoint, options = {}) {
@@ -62,5 +61,4 @@ class ApiClient {
     }
 }
 
-// Создаем экземпляр клиента
 window.apiClient = new ApiClient();

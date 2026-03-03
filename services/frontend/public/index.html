@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Graphics | Визуализация математических функций</title>
     
-    <!-- CSS -->
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/components.css">
     
-    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <!-- Навигация -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
@@ -41,9 +36,7 @@
         </div>
     </nav>
 
-    <!-- Главный контент -->
     <main class="container">
-        <!-- Заголовок -->
         <header class="page-header">
             <h1 class="page-title">
                 <i class="fas fa-function"></i>
@@ -55,11 +48,8 @@
             </p>
         </header>
 
-        <!-- Основная секция с графиком -->
         <div class="plot-section">
-            <!-- Левая колонка - форма и примеры -->
             <div class="plot-sidebar">
-                <!-- Форма ввода -->
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fas fa-pencil-alt"></i> Ввод функции</h2>
@@ -126,19 +116,16 @@
                     </div>
                 </div>
 
-                <!-- Примеры функций -->
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fas fa-list"></i> Примеры функций</h2>
                     </div>
                     <div class="card-body">
                         <div class="examples-grid" id="examplesContainer">
-                            <!-- Заполняется через JavaScript -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Информация о синтаксисе -->
                 <div class="card info-card">
                     <div class="card-header">
                         <h2><i class="fas fa-info-circle"></i> Синтаксис</h2>
@@ -182,7 +169,6 @@
                 </div>
             </div>
 
-            <!-- Правая колонка - график -->
             <div class="plot-main">
                 <div class="card plot-card">
                     <div class="card-header">
@@ -205,7 +191,6 @@
                     </div>
                 </div>
 
-                <!-- Секция с сохраненными графиками (для будущего) -->
                 <div class="saved-plots-section" id="savedPlots" style="display: none;">
                     <h3><i class="fas fa-history"></i> Недавние графики</h3>
                     <div class="saved-plots-grid"></div>
@@ -214,7 +199,6 @@
         </div>
     </main>
 
-    <!-- Футер -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -231,11 +215,8 @@
         </div>
     </footer>
 
-    <!-- Скрипты -->
-    <!-- Сначала библиотеки -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
-    <!-- Затем наши модули -->
     <script src="assets/js/utils/helpers.js"></script>
     <script src="assets/js/utils/validators.js"></script>
     <script src="assets/js/api/client.js"></script>

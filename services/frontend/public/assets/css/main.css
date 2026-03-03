@@ -1,6 +1,4 @@
-/* CSS Variables для темизации */
 :root {
-    /* Цвета */
     --primary-color: #4361ee;
     --primary-hover: #3046c7;
     --secondary-color: #6c757d;
@@ -9,7 +7,6 @@
     --warning-color: #ffc107;
     --info-color: #17a2b8;
     
-    /* Светлая тема (по умолчанию) */
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
     --bg-card: #ffffff;
@@ -18,16 +15,13 @@
     --border-color: #dee2e6;
     --shadow-color: rgba(0, 0, 0, 0.1);
     
-    /* Размеры */
     --navbar-height: 64px;
     --border-radius: 12px;
     --card-padding: 24px;
     
-    /* Анимации */
     --transition-speed: 0.3s;
 }
 
-/* Темная тема */
 [data-theme="dark"] {
     --bg-primary: #1a1a1a;
     --bg-secondary: #2d2d2d;
@@ -38,7 +32,6 @@
     --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* Базовые стили */
 * {
     margin: 0;
     padding: 0;
@@ -59,7 +52,6 @@ body {
     padding: 0 20px;
 }
 
-/* Навигация */
 .navbar {
     background-color: var(--bg-card);
     box-shadow: 0 2px 10px var(--shadow-color);
@@ -137,7 +129,6 @@ body {
     background-color: var(--border-color);
 }
 
-/* Заголовок страницы */
 .page-header {
     text-align: center;
     margin: 40px 0;
@@ -159,7 +150,6 @@ body {
     margin: 0 auto;
 }
 
-/* Секция графиков */
 .plot-section {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -167,7 +157,6 @@ body {
     margin-bottom: 40px;
 }
 
-/* Карточки */
 .card {
     background-color: var(--bg-card);
     border-radius: var(--border-radius);
@@ -199,7 +188,6 @@ body {
     padding: var(--card-padding);
 }
 
-/* Форма */
 .form-group {
     margin-bottom: 20px;
 }
@@ -243,7 +231,6 @@ body {
     margin-bottom: 0;
 }
 
-/* Range слайдер */
 .form-range {
     width: 100%;
     margin: 10px 0;
@@ -265,7 +252,6 @@ body {
     margin-left: 8px;
 }
 
-/* Кнопки */
 .btn {
     padding: 12px 24px;
     border: none;
@@ -301,7 +287,6 @@ body {
     color: var(--primary-color);
 }
 
-/* Сообщения об ошибках */
 .error-message {
     color: var(--danger-color);
     font-size: 0.9rem;
@@ -309,7 +294,6 @@ body {
     min-height: 20px;
 }
 
-/* Таблица синтаксиса */
 .syntax-table {
     width: 100%;
     border-collapse: collapse;
@@ -329,7 +313,6 @@ body {
     color: var(--primary-color);
 }
 
-/* Информационная карточка */
 .info-card {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
     color: white;
@@ -347,7 +330,6 @@ body {
     border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Контейнер графика */
 .plot-card {
     height: fit-content;
 }
@@ -366,7 +348,6 @@ body {
     font-size: 0.9rem;
 }
 
-/* Футер */
 .footer {
     background-color: var(--bg-card);
     padding: 24px 0;
@@ -395,7 +376,6 @@ body {
     color: var(--primary-color);
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .plot-section {
         grid-template-columns: 1fr;
