@@ -1,0 +1,23 @@
+{
+  "name": "math-graphics-frontend",
+  "version": "1.0.0",
+  "description": "Frontend для визуализации математических графиков",
+  "main": "public/assets/js/main.js",
+  "scripts": {
+    "start": "npx http-server public -p 8080 -o",
+    "dev": "npx http-server public -p 8080 -o -c-1",
+    "lint": "eslint public/assets/js",
+    "format": "prettier --write 'public/**/*.{js,css,html}'"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "chartjs-plugin-annotation": "^3.0.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "eslint": "^8.53.0",
+    "prettier": "^3.1.0"
+  },
+  "author": "",
+  "license": "MIT"
+}

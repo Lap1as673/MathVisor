@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Graphics | Визуализация математических функций</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>MathGraphics</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">Главная</a>
+                <a href="#2d" class="nav-link">2D Графики</a>
+                <a href="#3d" class="nav-link disabled">3D (скоро)</a>
+                <a href="#matrix" class="nav-link disabled">Матрицы (скоро)</a>
+                <a href="#forum" class="nav-link disabled">Форум (скоро)</a>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Главный контент -->
+    <main class="container">
+        <!-- Заголовок -->
+        <header class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-function"></i>
+                Построение графиков функций
+            </h1>
+            <p class="page-subtitle">
+                Введите математическую функцию и получите её график. 
+                Поддерживаются тригонометрические, экспоненциальные и алгебраические функции.
+            </p>
+        </header>
+
+        <!-- Основная секция с графиком -->
+        <div class="plot-section">
+            <!-- Левая колонка - форма и примеры -->
+            <div class="plot-sidebar">
+                <!-- Форма ввода -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-pencil-alt"></i> Ввод функции</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="plotForm">
+                            <div class="form-group">
+                                <label for="function">
+                                    f(x) =
+                                    <span class="tooltip-icon" data-tooltip="Используйте x как переменную. Примеры: sin(x), x^2, exp(-x)">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </label>
+                                <div class="input-group">
+                                    <input 
+                                        type="text" 
+                                        id="function" 
+                                        class="form-control" 
+                                        placeholder="например: sin(x) + cos(2*x)"
+                                        value="sin(x)"
+                                        autocomplete="off"
+                                    >
+                                    <button type="submit" class="btn btn-primary" id="plotBtn">
+                                        <i class="fas fa-plot"></i>
+                                        Построить
+                                    </button>
+                                </div>
+                                <div class="error-message" id="errorMessage"></div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="xMin">X min</label>
+                                    <input type="number" id="xMin" class="form-control" value="-10" step="0.1">
+                                </div>
+                                <div class="form-group half">
+                                    <label for="xMax">X max</label>
+                                    <input type="number" id="xMax" class="form-control" value="10" step="0.1">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="points">
+                                    Количество точек
+                                    <span class="point-count" id="pointCountDisplay">200</span>
+                                </label>
+                                <input 
+                                    type="range" 
+                                    id="points" 
+                                    class="form-range" 
+                                    min="50" 
+                                    max="1000" 
+                                    value="200" 
+                                    step="50"
+                                >
+                                <div class="range-labels">
+                                    <span>50</span>
+                                    <span>200</span>
+                                    <span>500</span>
+                                    <span>1000</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Примеры функций -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-list"></i> Примеры функций</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="examples-grid" id="examplesContainer">
+                            <!-- Заполняется через JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Информация о синтаксисе -->
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-info-circle"></i> Синтаксис</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="syntax-table">
+                            <tr>
+                                <td><code>sin(x)</code></td>
+                                <td>Синус</td>
+                            </tr>
+                            <tr>
+                                <td><code>cos(x)</code></td>
+                                <td>Косинус</td>
+                            </tr>
+                            <tr>
+                                <td><code>tan(x)</code></td>
+                                <td>Тангенс</td>
+                            </tr>
+                            <tr>
+                                <td><code>exp(x)</code></td>
+                                <td>Экспонента (e^x)</td>
+                            </tr>
+                            <tr>
+                                <td><code>log(x)</code></td>
+                                <td>Натуральный логарифм</td>
+                            </tr>
+                            <tr>
+                                <td><code>sqrt(x)</code></td>
+                                <td>Квадратный корень</td>
+                            </tr>
+                            <tr>
+                                <td><code>x**2</code></td>
+                                <td>Возведение в степень</td>
+                            </tr>
+                            <tr>
+                                <td><code>pi</code></td>
+                                <td>Константа π</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка - график -->
+            <div class="plot-main">
+                <div class="card plot-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> График функции</h2>
+                        <div class="plot-actions">
+                            <button class="btn btn-icon" id="downloadPNG" title="Сохранить как PNG">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-icon" id="fullscreenBtn" title="На весь экран">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body plot-container">
+                        <canvas id="functionChart"></canvas>
+                    </div>
+                    <div class="plot-footer" id="plotInfo">
+                        <span id="currentFunction">f(x) = sin(x)</span>
+                        <span id="plotStats"></span>
+                    </div>
+                </div>
+
+                <!-- Секция с сохраненными графиками (для будущего) -->
+                <div class="saved-plots-section" id="savedPlots" style="display: none;">
+                    <h3><i class="fas fa-history"></i> Недавние графики</h3>
+                    <div class="saved-plots-grid"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>MathGraphics © 2024 - Визуализация математических функций</p>
+                    <p>API версия: v1</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <!-- Сначала библиотеки -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Затем наши модули -->
+    <script src="assets/js/utils/helpers.js"></script>
+    <script src="assets/js/utils/validators.js"></script>
+    <script src="assets/js/api/client.js"></script>
+    <script src="assets/js/api/graphApi.js"></script>
+    <script src="assets/js/components/examples.js"></script>
+    <script src="assets/js/components/chart.js"></script>
+    <script src="assets/js/components/plotForm.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

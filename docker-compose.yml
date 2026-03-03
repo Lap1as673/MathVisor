@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mathvisor-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mathvisor-network
+
+  backend:
+    build: 
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_SERVER: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DEBUG: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # ИСПРАВЛЕНИЕ: Монтируем с правильными правами
+      - ./services/auth-service/app:/app/app:Z
+    networks:
+      - mathvisor-network
+    # ИСПРАВЛЕНИЕ: Запускаем от root для разработки
+    user: root
+
+  frontend:
+    build: ./services/frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    volumes:
+      # ИСПРАВЛЕНИЕ: Монтируем с правильными правами
+      - ./services/frontend/public:/usr/share/nginx/html:ro,Z
+    networks:
+      - mathvisor-network
+
+networks:
+  mathvisor-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
